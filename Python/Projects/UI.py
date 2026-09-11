@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
-from PIL import ImageTk, Image 
+from PIL import ImageTk, Image #for future progress 
 from MyQueue import RegistrarQueue
 
 
 class RegistrarQueueApp:
-    """Tkinter interface for issuing and serving registrar tickets."""
 
     def __init__(self, root):
         self.root = root
@@ -117,12 +116,10 @@ class RegistrarQueueApp:
             total_waiting += len(queue)
         self.count.set(f"Total waiting: {total_waiting}")
 
-
 def main():
     root = tk.Tk()
     RegistrarQueueApp(root)
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
