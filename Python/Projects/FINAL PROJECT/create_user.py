@@ -1,14 +1,11 @@
-import getpass
-
 import psycopg2
-
 from database import ensure_schema, get_connection, hash_password
 
 username = input("Username: ")
-password = getpass.getpass("Password: ")
+password = input("Password: ")
 
 if not username.strip() or not password:
-    raise SystemExit("Username and password are required.")
+    raise SystemExit("Username and password are required!")
 
 try:
     ensure_schema()
@@ -25,8 +22,8 @@ except psycopg2.errors.UniqueViolation:
     raise SystemExit("That username already exists in this database.")
 except psycopg2.Error as error:
     raise SystemExit(
-        "Could not create the user. Check PostgreSQL and the .env settings.\n"
+        "Could not create the USER. Check PostgreSQL and the .env settings!\n"
         f"{error}"
     )
 
-print("User created successfully.")
+print("User created successfully!")
