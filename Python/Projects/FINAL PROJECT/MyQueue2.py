@@ -1,9 +1,10 @@
 # DATA STRUCTURE - BATERBONIALISM
 # FIFO (First In, Fitst Out) system implemented to generate and remove queue tickets 
 
-# class Node: One linked-list item used to preserve ticket order.
+# class Node - One linked-list item used to preserve ticket order.
 class Node:
 
+# def __init__() - Stores one queue value and the link to the next value
     def __init__(self, value):
         self.value = value
         self.next = None
@@ -19,6 +20,7 @@ class Queue:
         self.end = None
         self.size = 0
 
+# def__len__() - defReturns the number of tickets currently waiting
     def __len__(self):
         return self.size
 
@@ -53,6 +55,7 @@ class Queue:
             self.end = None
         return ticket
 
+# def peek() - Returns the oldest ticket without removing it
     def peek(self):
         return None if self.is_empty() else self.front.value
 
@@ -63,11 +66,13 @@ class Queue:
             yield current.value
             current = current.next
 
+#def clear() - Removes every ticket from the queue
     def clear(self):
         self.front = None
         self.end = None
         self.size = 0
 
+#def is_empty() - Checks whether the queue has no tickets
     def is_empty(self):
         return self.front is None
 
