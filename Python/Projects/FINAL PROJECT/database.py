@@ -1,19 +1,21 @@
-import os
-import hashlib
-import hmac
-import psycopg2
-from dotenv import load_dotenv
+#This file handles database connection, password security, and queue system
+import os #It is used to get secret info from.env file
+import hashlib #IT is used to encrypt passwords
+import hmac  #It is used for secure password checking
+import psycopg2 #The tool to connect to postgreSQL database
+from dotenv import load_dotenv #Used to load secret data
 
+#Loads the secret info like username and password of database
 load_dotenv()
 
 
 def get_connection():
     return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
+        dbname=os.getenv("DB_NAME"), #Get database name
+        user=os.getenv("DB_USER"), #Get database username
+        password=os.getenv("DB_PASSWORD"), #Get database password
+        host=os.getenv("DB_HOST"), #Get database location
+        port=os.getenv("DB_PORT"), #Get database port
     )
 
 
@@ -90,8 +92,8 @@ def hash_password(password):
     return salt.hex() + ":" + password_hash.hex()
 
 
-def verify_password(password, stored_hash):
-    salt_hex, hash_hex = stored_hash.split(":")
+def verify_password(password, stored_hash): #Check if login password is correct
+    salt_hex, hash_hex = stored_hash.split(":") #Separate salt and hash
     new_hash = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode(),
@@ -144,6 +146,7 @@ def get_waiting_count(counter_number=None):
             return cursor.fetchone()[0]
 
 def get_waiting_tickets(counter_number):
+    ensure_schema()
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -160,7 +163,5 @@ def get_waiting_tickets(counter_number):
 
 def clear_queue():
     with get_connection() as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM queue_tickets")
         with connection.cursor() as cursor:
             cursor.execute("DELETE FROM queue_tickets")
