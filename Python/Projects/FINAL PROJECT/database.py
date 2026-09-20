@@ -17,6 +17,68 @@ def get_connection():
     )
 
 
+def ensure_schema():
+    with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(50) UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL
+                )
+                """
+            )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS queue_tickets (
+                    id SERIAL PRIMARY KEY,
+                    ticket_number VARCHAR(30) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    served BOOLEAN DEFAULT FALSE
+                )
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE queue_tickets
+                ADD COLUMN IF NOT EXISTS counter_number INTEGER
+                """
+            )
+            cursor.execute(
+                """
+                UPDATE queue_tickets
+                SET counter_number = 1
+                WHERE counter_number IS NULL
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE queue_tickets
+                ALTER COLUMN counter_number SET DEFAULT 1
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE queue_tickets
+                ALTER COLUMN counter_number SET NOT NULL
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE queue_tickets
+                DROP CONSTRAINT IF EXISTS queue_tickets_counter_number_check
+                """
+            )
+            cursor.execute(
+                """
+                ALTER TABLE queue_tickets
+                ADD CONSTRAINT queue_tickets_counter_number_check
+                CHECK (counter_number BETWEEN 1 AND 5)
+                """
+            )
+
+
 def hash_password(password):
     salt = os.urandom(16)
     password_hash = hashlib.pbkdf2_hmac(
@@ -98,5 +160,7 @@ def get_waiting_tickets(counter_number):
 
 def clear_queue():
     with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM queue_tickets")
         with connection.cursor() as cursor:
             cursor.execute("DELETE FROM queue_tickets")
